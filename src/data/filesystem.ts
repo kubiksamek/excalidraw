@@ -12,6 +12,7 @@ type FILE_EXTENSION =
   | "gif"
   | "jpg"
   | "png"
+  | "pdf"
   | "excalidraw.png"
   | "svg"
   | "excalidraw.svg"

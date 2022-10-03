@@ -96,6 +96,7 @@ export const MIME_TYPES = {
   svg: "image/svg+xml",
   "excalidraw.svg": "image/svg+xml",
   png: "image/png",
+  pdf: "application/pdf",
   "excalidraw.png": "image/png",
   jpg: "image/jpeg",
   gif: "image/gif",

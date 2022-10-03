@@ -6,6 +6,8 @@ import rough from "roughjs/bin/rough";
 import clsx from "clsx";
 import { nanoid } from "nanoid";
 
+import { pdfjs } from "react-pdf";
+
 import {
   actionAddToLibrary,
   actionBringForward,
@@ -266,12 +268,16 @@ import {
 } from "../element/Hyperlink";
 import { shouldShowBoundingBox } from "../element/transformHandles";
 
+// pdfjs.GlobalWorkerOptions.workerSrc = "pdf.worker.min.js";
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/legacy/build/pdf.worker.min.js`;
+
 const deviceContextInitialValue = {
   isSmScreen: false,
   isMobile: false,
   isTouchScreen: false,
   canDeviceFitSidebar: false,
 };
+
 const DeviceContext = React.createContext<Device>(deviceContextInitialValue);
 export const useDevice = () => useContext<Device>(DeviceContext);
 
@@ -449,6 +455,7 @@ class App extends React.Component<AppProps, AppState> {
     } = this.state;
     const canvasWidth = canvasDOMWidth * canvasScale;
     const canvasHeight = canvasDOMHeight * canvasScale;
+
     if (viewModeEnabled) {
       return (
         <canvas
@@ -5270,6 +5277,83 @@ class App extends React.Component<AppProps, AppState> {
     }
   };
 
+  private handlePdf = async (imageFile: File) => {
+    const fileUrl = URL.createObjectURL(imageFile);
+    const pdf = await pdfjs.getDocument(fileUrl).promise;
+
+    const totalPages = pdf.numPages;
+    const pageOffset = 20;
+
+    const pagesPerRow = 10;
+    const scale = 1;
+
+    // Support HiDPI-screens.
+    const outputScale = window.devicePixelRatio || 1;
+
+    const transform =
+      outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : undefined;
+
+    const clientX = this.state.width / 2 + this.state.offsetLeft;
+    const clientY = this.state.height / 2 + this.state.offsetTop;
+
+    const { x, y } = viewportCoordsToSceneCoords(
+      { clientX, clientY },
+      this.state,
+    );
+
+    for (let index = 0; index < totalPages; index += 1) {
+      const page = await pdf.getPage(index + 1);
+
+      const viewport = page.getViewport({ scale });
+
+      const canvas = document.createElement("canvas");
+      // canvasdiv.appendChild(canvas);
+
+      // Prepare canvas using PDF page dimensions
+      const context = canvas.getContext("2d");
+      if (context === null) {
+        return;
+      }
+
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+
+      // Render PDF page into canvas context
+      const renderContext = {
+        canvasContext: context,
+        viewport,
+        transform,
+      };
+
+      await page.render(renderContext).promise;
+
+      const blobUrl = canvas.toDataURL("image/png");
+      const pageWidth = viewport.width + pageOffset;
+      const pageHeight = viewport.height + pageOffset;
+
+      const columnIndex = index % pagesPerRow;
+      const rowIndex = Math.floor(index / pagesPerRow);
+
+      const res = await fetch(blobUrl);
+      const blob = await res.blob();
+      const imageFile = new File([blob], "File name", { type: "image/png" });
+
+      const imageElement = this.createImageElement({
+        sceneX: x + columnIndex * pageWidth,
+        sceneY: y + rowIndex * pageHeight,
+      });
+
+      await this.insertImageElement(imageElement, imageFile);
+      this.initializeImageDimensions(imageElement);
+    }
+
+    this.setState({
+      pendingImageElementId: null,
+      editingElement: null,
+      activeTool: updateActiveTool(this.state, { type: "selection" }),
+    });
+  };
+
   private onImageAction = async (
     { insertOnCanvasDirectly } = { insertOnCanvasDirectly: false },
   ) => {
@@ -5284,8 +5368,13 @@ class App extends React.Component<AppProps, AppState> {
 
       const imageFile = await fileOpen({
         description: "Image",
-        extensions: ["jpg", "png", "svg", "gif"],
+        extensions: ["jpg", "png", "svg", "gif", "pdf"],
       });
+
+      if (imageFile.type === MIME_TYPES.pdf) {
+        this.handlePdf(imageFile);
+        return;
+      }
 
       const imageElement = this.createImageElement({
         sceneX: x,
