@@ -10,7 +10,11 @@ import { calculateScrollCenter, getSelectedElements } from "../scene";
 import { ExportType } from "../scene/types";
 import { AppProps, AppState, ExcalidrawProps, BinaryFiles } from "../types";
 import { muteFSAbortError } from "../utils";
-import { SelectedShapeActions, ShapesSwitcher } from "./Actions";
+import {
+  SelectedPdfActions,
+  SelectedShapeActions,
+  ShapesSwitcher,
+} from "./Actions";
 import { BackgroundPickerAndDarkModeToggle } from "./BackgroundPickerAndDarkModeToggle";
 import CollabButton from "./CollabButton";
 import { ErrorDialog } from "./ErrorDialog";
@@ -242,6 +246,32 @@ const LayerUI = ({
     </Section>
   );
 
+  const renderPdfActions = () => (
+    <Section
+      heading="selectedPdfActions"
+      className={clsx("zen-mode-transition", {
+        "transition-left": appState.zenModeEnabled,
+      })}
+    >
+      <Island
+        className={"pdfActions"}
+        padding={2}
+        style={{
+          // we want to make sure this doesn't overflow so subtracting 200
+          // which is approximately height of zoom footer and top left menu items with some buffer
+          // if active file name is displayed, subtracting 248 to account for its height
+          maxHeight: `${appState.height - (appState.fileHandle ? 248 : 200)}px`,
+        }}
+      >
+        <SelectedPdfActions
+          appState={appState}
+          elements={elements}
+          renderAction={actionManager.renderAction}
+        />
+      </Island>
+    </Section>
+  );
+
   const closeLibrary = useCallback(() => {
     const isDialogOpen = !!document.querySelector(".Dialog");
 
@@ -295,6 +325,7 @@ const LayerUI = ({
             {appState.viewModeEnabled
               ? renderViewModeCanvasActions()
               : renderCanvasActions()}
+            {!!appState.pdfFile.file?.name && renderPdfActions()}
             {shouldRenderSelectedShapeActions && renderSelectedShapeActions()}
           </Stack.Col>
           {!appState.viewModeEnabled && (

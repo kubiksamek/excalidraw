@@ -222,6 +222,7 @@
   "headings": {
     "canvasActions": "Canvas actions",
     "selectedShapeActions": "Selected shape actions",
+    "selectedPdfActions": "Selected PDF actions",
     "shapes": "Shapes"
   },
   "hints": {

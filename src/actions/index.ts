@@ -5,6 +5,11 @@ export {
   actionSendBackward,
   actionSendToBack,
 } from "./actionZindex";
+export {
+  actionPdfPreviousPage,
+  actionPdfNextPage,
+  actionPdfClose,
+} from "./actionPdf";
 export { actionSelectAll } from "./actionSelectAll";
 export { actionDuplicateSelection } from "./actionDuplicateSelection";
 export {

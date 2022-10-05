@@ -5,6 +5,7 @@ import { RoughCanvas } from "roughjs/bin/canvas";
 import rough from "roughjs/bin/rough";
 import clsx from "clsx";
 import { nanoid } from "nanoid";
+import { PdfViewer } from "./PdfViewer";
 
 import { pdfjs } from "react-pdf";
 
@@ -268,8 +269,7 @@ import {
 } from "../element/Hyperlink";
 import { shouldShowBoundingBox } from "../element/transformHandles";
 
-// pdfjs.GlobalWorkerOptions.workerSrc = "pdf.worker.min.js";
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/legacy/build/pdf.worker.min.js`;
+pdfjs.GlobalWorkerOptions.workerSrc = "pdf.worker.min.js";
 
 const deviceContextInitialValue = {
   isSmScreen: false,
@@ -527,6 +527,8 @@ class App extends React.Component<AppProps, AppState> {
           this.props.handleKeyboardGlobally ? undefined : this.onKeyDown
         }
       >
+        <PdfViewer appState={this.state} />
+
         <ExcalidrawContainerContext.Provider
           value={this.excalidrawContainerValue}
         >
@@ -5277,11 +5279,30 @@ class App extends React.Component<AppProps, AppState> {
     }
   };
 
+  private handlePdfWithViewer = async (imageFile: File) => {
+    const fileUrl = URL.createObjectURL(imageFile);
+    const pdf = await pdfjs.getDocument(fileUrl).promise;
+
+    const totalPages = pdf.numPages;
+
+    this.setState({
+      pendingImageElementId: null,
+      editingElement: null,
+      activeTool: updateActiveTool(this.state, { type: "selection" }),
+      pdfFile: {
+        file: imageFile,
+        totalPageNum: totalPages,
+        currentPageNum: 1,
+      },
+    });
+  };
+
   private handlePdf = async (imageFile: File) => {
     const fileUrl = URL.createObjectURL(imageFile);
     const pdf = await pdfjs.getDocument(fileUrl).promise;
 
     const totalPages = pdf.numPages;
+
     const pageOffset = 20;
 
     const pagesPerRow = 10;
@@ -5372,7 +5393,8 @@ class App extends React.Component<AppProps, AppState> {
       });
 
       if (imageFile.type === MIME_TYPES.pdf) {
-        this.handlePdf(imageFile);
+        // this.handlePdf(imageFile);
+        this.handlePdfWithViewer(imageFile);
         return;
       }
 

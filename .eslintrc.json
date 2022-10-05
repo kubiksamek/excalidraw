@@ -1,7 +1,10 @@
 {
   "extends": ["@excalidraw/eslint-config", "react-app"],
+  "ignorePatterns": ["pdf.worker.min.js"],
   "rules": {
     "import/no-anonymous-default-export": "off",
-    "no-restricted-globals": "off"
+    "no-restricted-globals": "off",
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": "error"
   }
 }

@@ -78,7 +78,15 @@ export type LastActiveToolBeforeEraser =
       customType: string;
     }
   | null;
+
+export type PdfFile = {
+  file: File | null;
+  totalPageNum: number;
+  currentPageNum: number;
+};
+
 export type AppState = {
+  pdfFile: PdfFile;
   isLoading: boolean;
   errorMessage: string | null;
   draggingElement: NonDeletedExcalidrawElement | null;

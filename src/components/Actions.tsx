@@ -189,6 +189,29 @@ export const SelectedShapeActions = ({
   );
 };
 
+export const SelectedPdfActions = ({
+  appState,
+  elements,
+  renderAction,
+}: {
+  appState: AppState;
+  elements: readonly ExcalidrawElement[];
+  renderAction: ActionManager["renderAction"];
+}) => {
+  return (
+    <div className="panelColumn">
+      <fieldset>
+        <legend>{`PDF Pages (${appState.pdfFile.currentPageNum} of ${appState.pdfFile.totalPageNum})`}</legend>
+        <div className="buttonList">
+          {renderAction("previousPdfPage")}
+          {renderAction("nextPdfPage")}
+          {renderAction("closePdf")}
+        </div>
+      </fieldset>
+    </div>
+  );
+};
+
 export const ShapesSwitcher = ({
   canvas,
   activeTool,

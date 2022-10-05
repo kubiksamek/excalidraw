@@ -77,7 +77,8 @@
     "rewire": "6.0.0"
   },
   "resolutions": {
-    "@typescript-eslint/typescript-estree": "5.10.2"
+    "@typescript-eslint/typescript-estree": "5.10.2",
+    "@types/react": "^18.0.0"
   },
   "engines": {
     "node": ">=14.0.0"
@@ -93,6 +94,7 @@
   "prettier": "@excalidraw/prettier-config",
   "private": true,
   "scripts": {
+    "copy-assets": "cp ./node_modules/pdfjs-dist/build/pdf.worker.min.js ./public/",
     "build-node": "node ./scripts/build-node.js",
     "build:app:docker": "REACT_APP_DISABLE_SENTRY=true react-scripts build",
     "build:app": "REACT_APP_GIT_SHA=$VERCEL_GIT_COMMIT_SHA react-scripts build",
@@ -107,7 +109,7 @@
     "locales-coverage:description": "node scripts/locales-coverage-description.js",
     "prepare": "husky install",
     "prettier": "prettier \"**/*.{css,scss,json,md,html,yml}\" --ignore-path=.eslintignore",
-    "start": "react-scripts start",
+    "start": "yarn run copy-assets && react-scripts start",
     "test:all": "yarn test:typecheck && yarn test:code && yarn test:other && yarn test:app --watchAll=false",
     "test:app": "react-scripts test --passWithNoTests",
     "test:code": "eslint --max-warnings=0 --ext .js,.ts,.tsx .",

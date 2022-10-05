@@ -1,0 +1,45 @@
+.Example input,
+.Example button {
+  font: inherit;
+}
+
+.Example__container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px 0;
+  padding: 10px;
+  flex: auto;
+  display: flex;
+  position: absolute;
+  z-index: 10;
+  left: 300px;
+  top: 100px;
+  // z-index: var(--zIndex-pdfViewer);
+}
+
+.Example__container__document {
+  margin: 1em 0;
+
+  .react-pdf__Document {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .react-pdf__Page {
+    max-width: calc(100% - 2em);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+    margin: 1em;
+  }
+
+  .react-pdf__Page canvas {
+    max-width: 100%;
+    height: auto !important;
+  }
+
+  .react-pdf__message {
+    padding: 20px;
+    color: white;
+  }
+}
